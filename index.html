@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#010115">
+<title>Claim your pumpkin | Elevate Realty Group</title>
+<meta name="description" content="A free carving pumpkin delivered to your door, plus a chance to win two lower bowl Oilers tickets.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     CONFIG: paste your Apps Script Web App URL below, then save.
+     ============================================================ */
+  :root{
+    --navy:#030328; --navy-2:#0A0A38; --panel:#101046; --aqua:#00FBF0; --pump:#FF7A18;
+    --ink:#E6E6F0; --mute:#8E8EA8; --line:#242459; --card:#0C0C3C; --bg:#010115;
+    --radius:14px;
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  *,*::before,*::after{box-sizing:inherit}
+  html{scroll-padding-top:env(safe-area-inset-top,0px)}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:'Poppins','Helvetica Neue',Arial,sans-serif;
+    font-size:16px; line-height:1.62; -webkit-font-smoothing:antialiased;
+  }
+  img{max-width:100%; display:block}
+  h1,h2,h3{font-family:'Montserrat','Helvetica Neue',Arial,sans-serif; margin:0; color:var(--navy)}
+
+  .shell{max-width:660px; margin:0 auto; padding:24px 16px 56px}
+  .card{background:#fff; border-radius:var(--radius); overflow:hidden; box-shadow:0 2px 20px rgba(3,3,40,.07)}
+
+  .topbar{background:var(--navy); padding:22px 28px; text-align:center}
+  .wordmark{font-family:'Montserrat',Arial,sans-serif; font-weight:800; font-size:22px; letter-spacing:.5px; color:#fff}
+  .wordmark small{display:block; font-family:'Poppins',Arial,sans-serif; font-weight:600; font-size:10px; letter-spacing:4px; color:var(--aqua); margin-top:2px}
+
+  .hero{width:100%; height:auto}
+
+  .body{padding:34px 30px 8px}
+  .kicker{font-size:11px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--pump); margin:0 0 10px}
+  h1{font-size:30px; line-height:1.22; font-weight:800; margin-bottom:14px}
+  .lede{color:#4A4A5C; margin:0 0 22px}
+
+  .prize{background:var(--navy); border-radius:12px; padding:22px 24px; margin:0 0 28px}
+  .prize .lbl{font-size:10px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--aqua); margin:0 0 6px}
+  .prize .big{font-family:'Montserrat',Arial,sans-serif; font-size:21px; font-weight:700; color:#fff; line-height:1.3; margin:0 0 6px}
+  .prize p{margin:0; font-size:14px; color:#A9A9BE; line-height:1.55}
+
+  form{padding:0 30px 8px}
+  fieldset{border:0; margin:0 0 4px; padding:0}
+  legend{font-family:'Montserrat',Arial,sans-serif; font-size:13px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--navy); padding:0; margin:0 0 14px}
+  .row{display:flex; gap:14px; flex-wrap:wrap}
+  .row .field{flex:1 1 200px}
+  .field{margin:0 0 18px}
+  label{display:block; font-size:13.5px; font-weight:500; color:var(--navy); margin:0 0 6px}
+  .opt{color:var(--mute); font-weight:400}
+  input[type=text],input[type=email],input[type=tel],select,textarea{
+    width:100%; padding:13px 14px; font:inherit; font-size:15px; color:var(--ink);
+    background:#fff; border:1.5px solid var(--line); border-radius:10px; outline:none;
+    transition:border-color .15s, box-shadow .15s;
+  }
+  textarea{min-height:88px; resize:vertical}
+  select{
+    appearance:none; -webkit-appearance:none; -moz-appearance:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8'><path d='M1 1l5 5 5-5' stroke='%231F1F2E' stroke-width='1.8' fill='none' stroke-linecap='round'/></svg>");
+    background-repeat:no-repeat;
+    background-position:right 14px center;
+    background-size:12px 8px;
+    padding-right:38px;
+  }
+  input:focus,select:focus,textarea:focus{border-color:var(--navy); box-shadow:0 0 0 3px rgba(3,3,40,.09)}
+  input[aria-invalid=true],select[aria-invalid=true]{border-color:#C0392B}
+  .err{display:none; color:#C0392B; font-size:12.5px; margin-top:5px}
+  .err.show{display:block}
+
+  .hp{position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden}
+
+  .note{background:var(--card); border-radius:10px; padding:14px 16px; font-size:13.5px; color:#4A4A5C; margin:0 0 22px; line-height:1.55}
+
+  button{
+    width:100%; padding:17px 22px; font-family:'Montserrat',Arial,sans-serif;
+    font-size:17px; font-weight:700; color:#fff; background:var(--pump);
+    border:0; border-radius:10px; cursor:pointer; transition:filter .15s, opacity .15s;
+  }
+  button:hover:not(:disabled){filter:brightness(1.07)}
+  button:disabled{opacity:.6; cursor:default}
+
+  .fine{text-align:center; font-size:13px; color:var(--mute); margin:16px 0 0; line-height:1.6}
+  .fine a{color:var(--mute)}
+
+  .foot{background:var(--navy); padding:26px 30px; margin-top:34px}
+  .foot .tag{font-family:'Montserrat',Arial,sans-serif; font-size:14px; font-weight:700; color:var(--aqua); margin:0 0 6px}
+  .foot p{margin:0; font-size:12.5px; color:#8E8EA4; line-height:1.6}
+  .foot a{color:#8E8EA4}
+
+  /* success state */
+  .done{display:none; padding:46px 30px 40px; text-align:center}
+  .done.show{display:block}
+  .tick{width:66px; height:66px; border-radius:50%; background:var(--pump); margin:0 auto 22px; display:flex; align-items:center; justify-content:center}
+  .tick svg{width:30px; height:30px}
+  .done h2{font-size:25px; margin-bottom:12px}
+  .done p{color:#4A4A5C; margin:0 auto 14px; max-width:420px}
+
+  .fail{display:none; background:#FDECEA; border-radius:10px; padding:14px 16px; color:#922B21; font-size:14px; margin:0 0 18px}
+  .fail.show{display:block}
+
+  @media (max-width:520px){
+    .body,form{padding-left:20px; padding-right:20px}
+    h1{font-size:25px}
+    .shell{padding:12px 10px 40px}
+  }
+
+  /* ===================== DARK THEME OVERRIDES ===================== */
+  body{background:var(--bg); color:var(--ink)}
+  body::before{
+    content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+    background:
+      radial-gradient(900px 520px at 50% -8%, rgba(255,122,24,.13), transparent 62%),
+      radial-gradient(700px 500px at 105% 108%, rgba(0,251,240,.07), transparent 60%);
+  }
+  .shell{position:relative; z-index:1}
+  .card{background:var(--navy); box-shadow:0 20px 60px rgba(0,0,0,.6); border:1px solid var(--line)}
+  h1,h2,h3{color:#fff}
+
+  .topbar{border-bottom:1px solid var(--line)}
+  .hero{border-bottom:1px solid var(--line)}
+  .lede{color:#A9A9C4}
+
+  /* ---- prize card: orange, for contrast against the dark page ---- */
+  .prize{
+    background:linear-gradient(135deg,#FF8A2B 0%,#F26B0C 100%);
+    border:0; box-shadow:0 10px 34px rgba(255,122,24,.28);
+  }
+  .prize .lbl{color:#5C2500}
+  .prize .big{color:#1A0A00}
+  .prize p{color:#4A1D00}
+
+  legend{color:var(--aqua)}
+  label{color:#D2D2E4}
+  .opt{color:var(--mute)}
+
+  /* ---- form fields: white, so they read cleanly and the chevron behaves ---- */
+  input[type=text],input[type=email],input[type=tel],select,textarea{
+    background-color:#FFFFFF;
+    border:1.5px solid #FFFFFF;
+    color:#1F1F2E;
+  }
+  input::placeholder,textarea::placeholder{color:#8A8A9C}
+  select option{background:#FFFFFF; color:#1F1F2E}
+  input:focus,select:focus,textarea:focus{
+    border-color:var(--aqua);
+    box-shadow:0 0 0 3px rgba(0,251,240,.30);
+  }
+  input[aria-invalid=true],select[aria-invalid=true]{border-color:#E74C3C}
+  .err{color:#FF8B7C}
+  input:-webkit-autofill,textarea:-webkit-autofill,select:-webkit-autofill{
+    -webkit-text-fill-color:#1F1F2E;
+    -webkit-box-shadow:0 0 0 1000px #FFFFFF inset;
+    caret-color:#1F1F2E;
+  }
+
+  .note{background:var(--panel); color:#9E9EBC; border:1px solid #1D1D57}
+
+  button{box-shadow:0 8px 26px rgba(255,122,24,.34)}
+  button:hover:not(:disabled){filter:brightness(1.1)}
+
+  .fine{color:var(--mute)}
+  .fine a{color:var(--aqua)}
+  .fine strong{color:#fff}
+
+  .foot{background:#01010F; border-top:1px solid var(--line)}
+  .foot p{color:#6E6E8C}
+  .foot a{color:#8E8EA8}
+
+  .done p{color:#A9A9C4}
+  .tick{box-shadow:0 0 42px rgba(255,122,24,.5)}
+  .done strong{color:var(--aqua)}
+
+  .fail{background:#2A0F12; color:#FFA99E; border:1px solid #5A2229}
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <div class="card">
+
+    <div class="topbar">
+      <!-- Swap this for your hosted logo: <img src="…/elevate-logo-white.png" alt="Elevate Realty Group" style="width:170px;margin:0 auto"> -->
+      <div class="wordmark">ELEVATE<small>REALTY GROUP</small></div>
+    </div>
+
+    <!-- Hero: upload hero-pumpkin-drive.jpg to your host and point at it -->
+    <img class="hero" src="hero-pumpkin-drive.jpg" alt="A pumpkin carved with the Elevate Realty Group logo glowing on a foggy porch">
+
+    <!-- ============ FORM VIEW ============ -->
+    <div id="view-form">
+      <div class="body">
+        <p class="kicker">Halloween at Elevate</p>
+        <h1>Claim your free pumpkin</h1>
+        <p class="lede">Tell us where to bring it and we will drop it at your door the weekend of October 24. It is a thank you for trusting us with your move, and a good excuse to say hello.</p>
+
+        <div class="prize">
+          <p class="lbl">Everyone who says yes is entered</p>
+          <p class="big">Two lower bowl tickets, Oilers vs Vegas</p>
+          <p>Tuesday, November 24 at Rogers Place. Carve it, post a photo and tag @elevaterealty.yeg for two bonus entries. Drawn November 3.</p>
+        </div>
+      </div>
+
+      <form id="rsvp" novalidate>
+        <div class="fail" id="fail">Something went wrong sending that. Please try again, or email us at info@elevaterealtygroup.ca.</div>
+
+        <fieldset>
+          <legend>Your details</legend>
+          <div class="row">
+            <div class="field">
+              <label for="firstName">First name</label>
+              <input type="text" id="firstName" name="firstName" autocomplete="given-name" required>
+              <p class="err" id="e-firstName">Please enter your first name.</p>
+            </div>
+            <div class="field">
+              <label for="lastName">Last name</label>
+              <input type="text" id="lastName" name="lastName" autocomplete="family-name" required>
+              <p class="err" id="e-lastName">Please enter your last name.</p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" autocomplete="email" required>
+              <p class="err" id="e-email">Please enter a valid email address.</p>
+            </div>
+            <div class="field">
+              <label for="phone">Phone</label>
+              <input type="tel" id="phone" name="phone" autocomplete="tel" required>
+              <p class="err" id="e-phone">Please enter a phone number.</p>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Where we are dropping it</legend>
+          <div class="field">
+            <label for="address">Street address</label>
+            <input type="text" id="address" name="address" autocomplete="street-address" required>
+            <p class="err" id="e-address">Please enter your street address.</p>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label for="city">City or town</label>
+              <select id="city" name="city" required>
+                <option value="">Choose one</option>
+                <option>Edmonton</option>
+                <option>St. Albert</option>
+                <option>Sherwood Park</option>
+                <option>Fort Saskatchewan</option>
+                <option>Spruce Grove</option>
+                <option>Stony Plain</option>
+                <option>Devon</option>
+                <option>Leduc</option>
+                <option>Beaumont</option>
+                <option>Morinville</option>
+                <option>Somewhere else</option>
+              </select>
+              <p class="err" id="e-city">Please choose your city.</p>
+            </div>
+            <div class="field">
+              <label for="postal">Postal code</label>
+              <input type="text" id="postal" name="postal" autocomplete="postal-code" required>
+              <p class="err" id="e-postal">Please enter your postal code.</p>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>The pumpkins</legend>
+          <div class="row">
+            <div class="field">
+              <label for="quantity">How many?</label>
+              <select id="quantity" name="quantity" required>
+                <option value="1">1 pumpkin</option>
+                <option value="2">2 pumpkins</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="agent">Your Elevate agent <span class="opt">(if you remember)</span></label>
+              <select id="agent" name="agent">
+                <option value="">Not sure</option>
+                <option>Brent Anderson</option>
+                <option>Brianna Wagner</option>
+                <option>Crystal Quan</option>
+                <option>Dale Dela Cruz</option>
+                <option>Damara Carnegie</option>
+                <option>Dina Zejnilovic</option>
+                <option>Gage Philippon</option>
+                <option>Jasman Bains</option>
+                <option>Jesse Richards</option>
+                <option>Kailey Brown</option>
+                <option>Katherine Kwan</option>
+                <option>Kenneth Ozurumba</option>
+                <option>Kristen Cathcart</option>
+                <option>Leah Oliveira</option>
+                <option>Marlise Alves</option>
+                <option>Paul Paiva</option>
+                <option>Raine Zetazate</option>
+                <option>Robert Hasek</option>
+                <option>Sebastian Cruz</option>
+                <option>Tal Gimpel</option>
+                <option>Taylor Mahl</option>
+                <option>Trudi Hendry</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label for="notes">Anything we should know? <span class="opt">(optional)</span></label>
+            <textarea id="notes" name="notes" placeholder="Back gate, buzzer code, best time to come by, dog in the yard"></textarea>
+          </div>
+        </fieldset>
+
+        <!-- spam trap, leave empty -->
+        <div class="hp" aria-hidden="true">
+          <label for="company">Company</label>
+          <input type="text" id="company" name="company" tabindex="-1" autocomplete="off">
+        </div>
+
+        <p class="note">Limit two pumpkins per household, while supplies last. One draw entry per household no matter how many pumpkins you take, plus two bonus entries for one qualifying tagged photo. Maximum three entries per household.</p>
+
+        <button type="submit" id="submit">Claim my pumpkin</button>
+
+        <p class="fine">
+          Requests close <strong>October 2</strong>. Delivery the weekend of <strong>October 24</strong>.<br>
+          <a href="/pumpkin-rules" target="_blank" rel="noopener">Read the full contest rules</a>
+        </p>
+      </form>
+    </div>
+
+    <!-- ============ SUCCESS VIEW ============ -->
+    <div class="done" id="view-done">
+      <div class="tick">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+      </div>
+      <h2>You are on the list</h2>
+      <p>We will bring your pumpkin the weekend of October 24. Somebody from the Elevate team will text you the morning it is coming.</p>
+      <p>You are in the draw for the Oilers tickets. Want two more entries? Carve it, post a photo, and tag <strong>@elevaterealty.yeg</strong> between October 29 and November 2.</p>
+    </div>
+
+    <div class="foot">
+      <p class="tag">Modern Moves. Real Results.</p>
+      <p>
+        Elevate Realty Group, brokered by Real Broker. Edmonton, Alberta.<br>
+        No purchase necessary. Open to Alberta residents 18 and over. Approximate retail value $480 CAD. Odds depend on the number of entries received. Winner must answer a skill testing question. This promotion is not sponsored, endorsed or administered by Instagram, the Edmonton Oilers or the NHL.
+        <a href="/pumpkin-rules" target="_blank" rel="noopener">Full rules</a>.
+      </p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   1. Paste your Apps Script Web App URL here.
+   ============================================================ */
+const ENDPOINT = "https://script.google.com/macros/s/AKfycbyy3WqwH493sswPOC4x4NCSev9-TIMKLQYDfxTDgF0burNX8QJfWqGbtXby7bi-3LOa/exec";
+
+const form   = document.getElementById("rsvp");
+const btn    = document.getElementById("submit");
+const fail   = document.getElementById("fail");
+const vForm  = document.getElementById("view-form");
+const vDone  = document.getElementById("view-done");
+
+const required = ["firstName","lastName","email","phone","address","city","postal"];
+
+function showError(id, on){
+  const el = document.getElementById(id);
+  const er = document.getElementById("e-" + id);
+  if (el) el.setAttribute("aria-invalid", on ? "true" : "false");
+  if (er) er.classList.toggle("show", on);
+}
+
+function validate(){
+  let ok = true, firstBad = null;
+  required.forEach(function(id){
+    const el = document.getElementById(id);
+    let bad = !el.value.trim();
+    if (id === "email" && !bad) bad = !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(el.value.trim());
+    if (id === "phone" && !bad) bad = el.value.replace(/\D/g, "").length < 10;
+    showError(id, bad);
+    if (bad && !firstBad) firstBad = el;
+    if (bad) ok = false;
+  });
+  if (firstBad) firstBad.focus();
+  return ok;
+}
+
+required.forEach(function(id){
+  const el = document.getElementById(id);
+  el.addEventListener("input", function(){ showError(id, false); });
+  el.addEventListener("change", function(){ showError(id, false); });
+});
+
+form.addEventListener("submit", async function(ev){
+  ev.preventDefault();
+  fail.classList.remove("show");
+  if (document.getElementById("company").value) return;  // bot
+  if (!validate()) return;
+
+  btn.disabled = true;
+  btn.textContent = "Sending…";
+
+  const payload = {
+    submittedAt: new Date().toISOString(),
+    firstName: firstName.value.trim(),
+    lastName:  lastName.value.trim(),
+    email:     email.value.trim(),
+    phone:     phone.value.trim(),
+    address:   address.value.trim(),
+    city:      city.value,
+    postal:    postal.value.trim().toUpperCase(),
+    quantity:  quantity.value,
+    agent:     agent.value,
+    notes:     notes.value.trim()
+  };
+
+  try{
+    const res = await fetch(ENDPOINT, {
+      method: "POST",
+      // text/plain keeps this a simple request so the browser skips the CORS preflight
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.result !== "success") throw new Error(data.message || "rejected");
+    vForm.style.display = "none";
+    vDone.classList.add("show");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  } catch(err){
+    console.error(err);
+    fail.classList.add("show");
+    btn.disabled = false;
+    btn.textContent = "Claim my pumpkin";
+    fail.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+});
+</script>
+</body>
+</html>
